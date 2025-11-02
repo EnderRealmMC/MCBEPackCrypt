@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { ConfigProvider, theme as antdTheme } from 'antd';
 
 export type ThemeMode = 'auto' | 'light' | 'dark';
 export type ActualTheme = 'light' | 'dark';
@@ -41,10 +42,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     
     // 更新HTML根元素的data-theme属性
     document.documentElement.setAttribute('data-theme', newActualTheme);
-    
-    // 更新body的类名以支持CSS样式
-    document.body.className = document.body.className.replace(/theme-\w+/g, '');
-    document.body.classList.add(`theme-${newActualTheme}`);
   };
 
   // 设置主题模式
@@ -73,20 +70,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     };
   }, [theme]);
 
-  // 应用主题到DOM
-  useEffect(() => {
-    const body = document.body;
-    const html = document.documentElement;
-    
-    // 移除之前的主题类
-    body.classList.remove('theme-light', 'theme-dark');
-    html.removeAttribute('data-theme');
-    
-    // 添加新的主题类
-    body.classList.add(`theme-${actualTheme}`);
-    html.setAttribute('data-theme', actualTheme);
-  }, [actualTheme]);
-
   // 初始化主题
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as ThemeMode;
@@ -100,9 +83,18 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, []);
 
+  // 使用Ant Design的ConfigProvider提供主题
+  const { defaultAlgorithm, darkAlgorithm } = antdTheme;
+
   return (
     <ThemeContext.Provider value={{ theme, actualTheme, setTheme }}>
-      {children}
+      <ConfigProvider
+        theme={{
+          algorithm: actualTheme === 'dark' ? darkAlgorithm : defaultAlgorithm,
+        }}
+      >
+        {children}
+      </ConfigProvider>
     </ThemeContext.Provider>
   );
 };

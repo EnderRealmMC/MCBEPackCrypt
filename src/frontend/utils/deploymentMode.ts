@@ -43,7 +43,26 @@ class DeploymentModeDetector {
     this.isDetecting = true;
 
     try {
-      // 尝试调用健康检查接口
+      // 首先检查环境变量中是否已明确设置了部署模式
+      const envDeploymentMode = process.env.DEPLOYMENT_MODE;
+      console.log('[DeploymentMode] Environment variable DEPLOYMENT_MODE:', envDeploymentMode);
+      
+      if (envDeploymentMode === 'frontend-only') {
+        console.log('[DeploymentMode] Using frontend-only mode from environment variable');
+        this.deploymentInfo = {
+          mode: 'frontend-only',
+          features: {
+            backendCrypto: false,
+            fileServices: false,
+            cleanupService: false
+          }
+        };
+        this.isDetecting = false;
+        return this.deploymentInfo;
+      }
+      
+      // 如果环境变量没有明确设置为frontend-only，再尝试调用健康检查接口
+      console.log('[DeploymentMode] Environment variable not set to frontend-only, trying health check...');
       const response = await fetch('/api/health', {
         method: 'GET',
         headers: {
@@ -53,9 +72,11 @@ class DeploymentModeDetector {
 
       if (response.ok) {
         const healthData = await response.json();
+        console.log('[DeploymentMode] Health check response:', healthData);
         
         // 从健康检查响应中获取部署模式信息
         if (healthData.data && healthData.data.deploymentMode) {
+          console.log('[DeploymentMode] Using mode from health check:', healthData.data.deploymentMode);
           this.deploymentInfo = {
             mode: healthData.data.deploymentMode,
             features: healthData.data.features || {
@@ -66,6 +87,7 @@ class DeploymentModeDetector {
           };
         } else {
           // 兼容旧版本响应格式
+          console.log('[DeploymentMode] Using fallback fullstack mode (legacy response format)');
           this.deploymentInfo = {
             mode: 'fullstack',
             features: {
@@ -77,7 +99,7 @@ class DeploymentModeDetector {
         }
       } else {
         // 如果健康检查失败，假设为frontend-only模式
-        console.warn('Health check failed, assuming frontend-only mode');
+        console.warn('[DeploymentMode] Health check failed, assuming frontend-only mode');
         this.deploymentInfo = {
           mode: 'frontend-only',
           features: {
@@ -89,7 +111,7 @@ class DeploymentModeDetector {
       }
     } catch (error) {
       // 网络错误或其他错误，假设为frontend-only模式
-      console.warn('Failed to detect deployment mode, assuming frontend-only:', error);
+      console.warn('[DeploymentMode] Failed to detect deployment mode, assuming frontend-only:', error);
       this.deploymentInfo = {
         mode: 'frontend-only',
         features: {
@@ -175,6 +197,15 @@ class DeploymentModeDetector {
     }
     
     return features;
+  }
+
+  /**
+   * 清除缓存，强制重新检测
+   */
+  clearCache(): void {
+    console.log('[DeploymentMode] Clearing cache, will re-detect on next call');
+    this.deploymentInfo = null;
+    this.isDetecting = false;
   }
 }
 

@@ -104,7 +104,6 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ visible, onClose, error }) => {
           <div 
             className="stack-trace-container"
             style={{ 
-              backgroundColor: '#fafafa',
               padding: '12px',
               borderRadius: '4px',
               fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -114,7 +113,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ visible, onClose, error }) => {
               wordBreak: 'break-all',
               maxHeight: '300px',
               overflowY: 'auto',
-              border: '1px solid #e8e8e8'
+              border: '1px solid var(--border-color)'
             }}
           >
             {error.stack || error.message}

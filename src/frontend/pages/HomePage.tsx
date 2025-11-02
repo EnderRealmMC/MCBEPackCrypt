@@ -634,7 +634,6 @@ const HomePage: React.FC = () => {
                     ref={encryptLogRef}
                     className="stack-trace-container"
                     style={{ 
-                      backgroundColor: '#fafafa',
                       padding: '12px',
                       borderRadius: '4px',
                       fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -644,7 +643,7 @@ const HomePage: React.FC = () => {
                       wordBreak: 'break-all',
                       maxHeight: '300px',
                       overflowY: 'auto',
-                      border: '1px solid #e8e8e8'
+                      border: '1px solid var(--border-color)'
                     }}
                     onScroll={(e) => checkScrollPosition(e.target as HTMLDivElement, 'encrypt')}
                   >
@@ -810,7 +809,6 @@ const HomePage: React.FC = () => {
                     ref={decryptLogRef}
                     className="stack-trace-container"
                     style={{ 
-                      backgroundColor: '#fafafa',
                       padding: '12px',
                       borderRadius: '4px',
                       fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -820,7 +818,7 @@ const HomePage: React.FC = () => {
                       wordBreak: 'break-all',
                       maxHeight: '300px',
                       overflowY: 'auto',
-                      border: '1px solid #e8e8e8'
+                      border: '1px solid var(--border-color)'
                     }}
                     onScroll={(e) => checkScrollPosition(e.target as HTMLDivElement, 'decrypt')}
                   >

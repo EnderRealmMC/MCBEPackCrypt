@@ -1,9 +1,13 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // 加载环境变量
+  const env = loadEnv(mode, process.cwd(), '');
+
+  return {
   plugins: [react()],
   root: 'src/frontend',
   build: {
@@ -17,7 +21,8 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
-    'process.env': {},
+    'process.env.DEPLOYMENT_MODE': JSON.stringify(env.DEPLOYMENT_MODE || 'fullstack'),
+    'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
   },
   server: {
     port: parseInt(process.env.FRONTEND_PORT || '3000'),
@@ -30,4 +35,5 @@ export default defineConfig({
   },
   publicDir: '../../resources',
   base: '/'
-})
+  };
+});
