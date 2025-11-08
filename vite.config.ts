@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
     global: 'globalThis',
     'process.env.DEPLOYMENT_MODE': JSON.stringify(env.DEPLOYMENT_MODE || 'fullstack'),
     'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
+    'process.env.REQUIRE_EULA_AGREEMENT': JSON.stringify(env.REQUIRE_EULA_AGREEMENT || 'false')
   },
   server: {
     port: parseInt(process.env.FRONTEND_PORT || '3000'),

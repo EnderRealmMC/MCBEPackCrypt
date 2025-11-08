@@ -259,5 +259,21 @@
     "noAccess": "我们没有任何途径获取您的原始文件",
     "noCloudRecord": "处理完成后不会留下任何云端记录",
     "tip": "提示：处理过程中请保持浏览器标签页激活，以获得最佳性能"
+  },
+  "eula": {
+    "title": "最终用户许可协议",
+    "readAndAgree": "我已阅读并同意最终用户许可协议",
+    "agree": "同意",
+    "disagree": "不同意",
+    "close": "关闭",
+    "confirmTitle": "需要确认",
+    "confirmMessage": "您确定要拒绝最终用户许可协议吗？",
+    "confirmAgreeMessage": "您确定要同意最终用户许可协议吗？",
+    "serviceDisabled": "服务访问已禁用",
+    "serviceDisabledMessage": "您已拒绝最终用户许可协议。加密和解密功能已被禁用。您可以刷新页面重新审阅并接受协议。",
+    "agreementAccepted": "协议已接受",
+    "agreementAcceptedMessage": "感谢您接受最终用户许可协议。您现在可以完全访问所有功能。",
+    "mustAgree": "您必须同意最终用户许可协议才能使用此服务",
+    "scrollToRead": "请滚动阅读完整协议"
   }
 }

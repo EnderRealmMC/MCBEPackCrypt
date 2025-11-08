@@ -5,9 +5,12 @@ import { useTranslation } from 'react-i18next';
 import ErrorModal from '../components/ErrorModal';
 import DownloadTaskModal from '../components/DownloadTaskModal';
 import LocalComputeModal from '../components/LocalComputeModal';
+import EULAModal from '../components/EULAModal';
 import { saveDownloadTask, getDownloadTask, clearDownloadTask, startDownload } from '../utils/downloadTaskStorage';
 import { cryptoServiceAdapter } from '../services/cryptoServiceAdapter';
 import { deploymentModeDetector } from '../utils/deploymentMode';
+import { checkEULAAgreement } from '../utils/eulaStorage';
+import i18n from '../i18n';
 
 const { Dragger } = Upload;
 
@@ -44,6 +47,10 @@ const HomePage: React.FC = () => {
   
   // 本地计算弹窗状态
   const [localComputeModalVisible, setLocalComputeModalVisible] = useState(false);
+  
+  // EULA弹窗状态
+  const [eulaModalVisible, setEulaModalVisible] = useState(false);
+  const [eulaAgreed, setEulaAgreed] = useState(false);
   
   // 详细信息面板状态
   const [encryptDetailsVisible, setEncryptDetailsVisible] = useState(true); // 默认展开
@@ -131,22 +138,82 @@ const HomePage: React.FC = () => {
       const description = await deploymentModeDetector.getModeDescription();
       setDeploymentMode(mode.mode);
       setModeDescription(description);
-
-      // 检查是否需要显示本地计算说明弹窗
-      if (mode.mode === 'frontend-only') {
-        const hasShownNotice = localStorage.getItem('localComputeNoticeShown');
-        if (!hasShownNotice) {
-          setLocalComputeModalVisible(true);
-        }
-      }
     };
 
+  // 检查EULA同意状态
+  const checkEULA = async () => {
+    const language = i18n.language;
+    const agreed = checkEULAAgreement(language);
+    setEulaAgreed(agreed);
+    
+    // 调试日志
+    console.log('EULA检查 - 环境变量:', process.env.REQUIRE_EULA_AGREEMENT);
+    console.log('EULA检查 - 用户:', agreed);
+    
+    // 如果需要显示EULA弹窗
+    if (process.env.REQUIRE_EULA_AGREEMENT === 'true' && !agreed) {
+      console.log('显示EULA弹窗');
+      setEulaModalVisible(true);
+    } else {
+      console.log('不显示EULA弹窗');
+    }
+  };
+
     detectMode();
+    checkEULA();
 
     // 页面加载时检查下载任务
     checkPendingTask();
     
   }, []);
+
+  // 处理加密文件弹窗的显示
+  const handleEncryptModalShow = () => {
+    // 检查EULA同意状态（仅在需要EULA时）
+    console.log('加密弹窗 - EULA检查:', process.env.REQUIRE_EULA_AGREEMENT, '已同意:', eulaAgreed);
+    if (process.env.REQUIRE_EULA_AGREEMENT === 'true' && !eulaAgreed) {
+      console.log('显示EULA弹窗（加密）');
+      setEulaModalVisible(true);
+      return;
+    }
+    
+    // 检查是否有未完成的下载任务
+    if (!checkForPendingDownloadTask()) {
+      clearLogs('encrypt'); // 清理之前的日志
+      setEncryptModalVisible(true);
+    }
+  };
+
+  // 处理解密文件弹窗的显示
+  const handleDecryptModalShow = () => {
+    // 检查EULA同意状态（仅在需要EULA时）
+    console.log('解密弹窗 - EULA检查:', process.env.REQUIRE_EULA_AGREEMENT, '已同意:', eulaAgreed);
+    if (process.env.REQUIRE_EULA_AGREEMENT === 'true' && !eulaAgreed) {
+      console.log('显示EULA弹窗（解密）');
+      setEulaModalVisible(true);
+      return;
+    }
+    
+    // 检查是否有未完成的下载任务
+    if (!checkForPendingDownloadTask()) {
+      clearLogs('decrypt'); // 清理之前的日志
+      setDecryptModalVisible(true);
+    }
+  };
+
+  // 处理EULA同意状态更新
+  const handleEULAAgreed = (agreed: boolean) => {
+    setEulaAgreed(agreed);
+    setEulaModalVisible(false);
+    
+    // 如果用户同意EULA，检查是否需要显示本地计算说明弹窗
+    if (agreed && deploymentMode === 'frontend-only') {
+      const hasShownNotice = localStorage.getItem('localComputeNoticeShown');
+      if (!hasShownNotice) {
+        setLocalComputeModalVisible(true);
+      }
+    }
+  };
 
   // 检查下载任务的函数
   const checkForPendingDownloadTask = () => {
@@ -414,13 +481,7 @@ const HomePage: React.FC = () => {
                       color: 'white',
                       cursor: 'pointer'
                     }}
-                    onClick={() => {
-                      // 检查是否有未完成的下载任务
-                      if (!checkForPendingDownloadTask()) {
-                        clearLogs('encrypt'); // 清理之前的日志
-                        setEncryptModalVisible(true);
-                      }
-                    }}
+                    onClick={handleEncryptModalShow}
                   >
                     <LockOutlined style={{ fontSize: '48px' }} />
                   </div>
@@ -430,13 +491,7 @@ const HomePage: React.FC = () => {
                     type="primary" 
                     size="large" 
                     icon={<SafetyOutlined />}
-                    onClick={() => {
-                      // 检查是否有未完成的下载任务
-                      if (!checkForPendingDownloadTask()) {
-                        clearLogs('encrypt'); // 清理之前的日志
-                        setEncryptModalVisible(true);
-                      }
-                    }}
+                    onClick={handleEncryptModalShow}
                     style={{ width: '80%' }}
                   >
                     {t('encrypt.button')}
@@ -475,13 +530,7 @@ const HomePage: React.FC = () => {
                       color: 'white',
                       cursor: 'pointer'
                     }}
-                    onClick={() => {
-                      // 检查是否有未完成的下载任务
-                      if (!checkForPendingDownloadTask()) {
-                        clearLogs('decrypt'); // 清理之前的日志
-                        setDecryptModalVisible(true);
-                      }
-                    }}
+                    onClick={handleDecryptModalShow}
                   >
                     <UnlockOutlined style={{ fontSize: '48px' }} />
                   </div>
@@ -491,13 +540,7 @@ const HomePage: React.FC = () => {
                     type="primary" 
                     size="large" 
                     icon={<KeyOutlined />}
-                    onClick={() => {
-                      // 检查是否有未完成的下载任务
-                      if (!checkForPendingDownloadTask()) {
-                        clearLogs('decrypt'); // 清理之前的日志
-                        setDecryptModalVisible(true);
-                      }
-                    }}
+                    onClick={handleDecryptModalShow}
                     style={{ width: '80%' }}
                   >
                     {t('decrypt.button')}
@@ -929,6 +972,13 @@ const HomePage: React.FC = () => {
         <LocalComputeModal
           visible={localComputeModalVisible}
           onClose={() => setLocalComputeModalVisible(false)}
+        />
+        
+        {/* EULA弹窗 */}
+        <EULAModal
+          visible={eulaModalVisible}
+          onAgree={() => handleEULAAgreed(true)}
+          onDisagree={() => handleEULAAgreed(false)}
         />
       </div>
     );

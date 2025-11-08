@@ -258,5 +258,21 @@
     "noAccess": "We have no way to access your original files",
     "noCloudRecord": "No cloud records are left after processing is complete",
     "tip": "Tip: Keep the browser tab active during processing for optimal performance"
+  },
+  "eula": {
+    "title": "End User License Agreement",
+    "readAndAgree": "I have read and agree to the End User License Agreement",
+    "agree": "Agree",
+    "disagree": "Disagree",
+    "close": "Close",
+    "confirmTitle": "Confirmation Required",
+    "confirmMessage": "Are you sure you want to decline the End User License Agreement?",
+    "confirmAgreeMessage": "Are you sure you want to agree to the End User License Agreement?",
+    "serviceDisabled": "Service Access Disabled",
+    "serviceDisabledMessage": "You have declined the End User License Agreement. Encryption and decryption features are disabled. You can refresh the page to review and accept the agreement again.",
+    "agreementAccepted": "Agreement Accepted",
+    "agreementAcceptedMessage": "Thank you for accepting the End User License Agreement. You now have full access to all features.",
+    "mustAgree": "You must agree to the End User License Agreement to use this service",
+    "scrollToRead": "Please scroll to read the complete agreement"
   }
 }
