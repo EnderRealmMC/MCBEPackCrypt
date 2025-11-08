@@ -102,6 +102,23 @@ const EULAModal: React.FC<EULAModalProps> = ({ visible, onAgree, onDisagree }) =
   const [showServiceDisabled, setShowServiceDisabled] = useState<boolean>(false);
   const [showAgreementAccepted, setShowAgreementAccepted] = useState<boolean>(false);
 
+  // 导入EULA文件
+  const importEULAFile = async (language: string): Promise<string> => {
+    try {
+      if (language.startsWith('zh')) {
+        // @ts-ignore
+        const content = await import('../lang/eula/zh.md');
+        return content.default;
+      } else {
+        // @ts-ignore
+        const content = await import('../lang/eula/en.md');
+        return content.default;
+      }
+    } catch (error) {
+      throw new Error(`Failed to import EULA file for language ${language}: ${error}`);
+    }
+  };
+
   // 加载EULA内容
   const loadEULAContent = useCallback(async () => {
     try {
@@ -109,14 +126,7 @@ const EULAModal: React.FC<EULAModalProps> = ({ visible, onAgree, onDisagree }) =
       setError('');
       
       const language = i18n.language;
-      const fileName = language.startsWith('zh') ? 'zh.md' : 'en.md';
-      
-      const response = await fetch(`/lang/eula/${fileName}`);
-      if (!response.ok) {
-        throw new Error(`Failed to load EULA: ${response.status}`);
-      }
-      
-      const content = await response.text();
+      const content = await importEULAFile(language);
       setEulaContent(content);
       
       // 检查是否需要重新同意（基于当前语言的EULA）
